@@ -8,7 +8,7 @@ type LogState = {
   type: "success" | "error";
 } | null;
 
-export const useToDoViewModel = () => {
+export const useToDoPresenter = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskText, setNewTaskText] = useState("");
   const [logState, setLogState] = useState<LogState>(null);
@@ -41,7 +41,7 @@ export const useToDoViewModel = () => {
     }
   };
 
-  const handleAddTask = async () => {
+  const addTask = async () => {
     if (!newTaskText.trim()) {
       showLog("A tarefa não pode estar vazia.", "error");
       return;
@@ -56,7 +56,7 @@ export const useToDoViewModel = () => {
     }
   };
 
-  const handleRemoveTask = async (id: string) => {
+  const removeTask = async (id: string) => {
     try {
       await api.delete(id);
       setTasks((prev) => prev.filter((t) => t.id !== id));
@@ -66,7 +66,7 @@ export const useToDoViewModel = () => {
     }
   };
 
-  const handleToggleTask = async (id: string) => {
+  const toggleTask = async (id: string) => {
     try {
       await api.toggle(id);
       setTasks((prev) =>
@@ -77,7 +77,7 @@ export const useToDoViewModel = () => {
     }
   };
 
-  const handleUpdateTask = async (id: string, newTitle: string) => {
+  const updateTask = async (id: string, newTitle: string) => {
     if (!newTitle.trim()) return;
     try {
       await api.update(id, newTitle);
@@ -92,11 +92,11 @@ export const useToDoViewModel = () => {
 
   // --- LÓGICA DE DRAG AND DROP (ID BASED) ---
 
-  const handleDragStart = (id: string) => {
+  const onDragStart = (id: string) => {
     dragItem.current = id;
   };
 
-  const handleDragEnter = (targetId: string) => {
+  const onDragEnter = (targetId: string) => {
     // Se não estiver arrastando nada ou o alvo for o mesmo item, ignora
     if (dragItem.current === null) return;
     if (dragItem.current === targetId) return;
@@ -118,7 +118,7 @@ export const useToDoViewModel = () => {
     setTasks(newTasks);
   };
 
-  const handleDragEnd = async () => {
+  const onDragEnd = async () => {
     dragItem.current = null;
 
     try {
@@ -138,18 +138,23 @@ export const useToDoViewModel = () => {
   };
 
   return {
+    // Data (View State)
     tasks: filteredTasks,
     newTaskText,
-    setNewTaskText,
     logState,
-    handleAddTask,
-    handleRemoveTask,
-    handleToggleTask,
-    handleUpdateTask,
     hideCompleted,
+    
+    // Actions (Commands from View to Presenter)
+    setNewTaskText, // Input binding
+    addTask,
+    removeTask,
+    toggleTask,
+    updateTask,
     toggleHideCompleted,
-    handleDragStart,
-    handleDragEnter,
-    handleDragEnd,
+    
+    // Drag & Drop Events
+    onDragStart,
+    onDragEnter,
+    onDragEnd,
   };
 };

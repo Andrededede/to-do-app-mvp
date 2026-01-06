@@ -1,5 +1,5 @@
 import React from "react";
-import { useToDoViewModel } from "./useToDoViewModel";
+import { useToDoPresenter } from "./useToDoPresenter";
 import { useTheme } from "../../hooks/useTheme";
 import { ToDoCard } from "./to-do-card/ToDoCard";
 import { ToDoLog } from "./to-do-log/ToDoLog";
@@ -7,11 +7,11 @@ import { Plus, ListChecks, Sun, Moon, Filter } from "lucide-react";
 import "./to-do-page.css";
 
 export const ToDoPage: React.FC = () => {
-  const vm = useToDoViewModel();
+  const presenter = useToDoPresenter();
   const { isDark, toggleTheme } = useTheme();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") vm.handleAddTask();
+    if (e.key === "Enter") presenter.addTask();
   };
 
   return (
@@ -26,7 +26,7 @@ export const ToDoPage: React.FC = () => {
         </button>
 
         <header className="todo-header">
-          <h1>To Do App MVVM</h1>
+          <h1>To Do App MVP</h1>
           <ListChecks size={32} className="header-icon" />
         </header>
 
@@ -34,12 +34,12 @@ export const ToDoPage: React.FC = () => {
           <input
             type="text"
             placeholder="Adicione uma nova tarefa..."
-            value={vm.newTaskText}
-            onChange={(e) => vm.setNewTaskText(e.target.value)}
+            value={presenter.newTaskText}
+            onChange={(e) => presenter.setNewTaskText(e.target.value)}
             onKeyDown={handleKeyDown}
           />
           <button
-            onClick={vm.handleAddTask}
+            onClick={presenter.addTask}
             className="add-btn"
             title="Adicionar nova tarefa"
           >
@@ -48,17 +48,17 @@ export const ToDoPage: React.FC = () => {
         </div>
 
         <ToDoLog
-          key={vm.logState?.id}
-          message={vm.logState?.message || null}
-          type={vm.logState?.type || null}
+          key={presenter.logState?.id}
+          message={presenter.logState?.message || null}
+          type={presenter.logState?.type || null}
         />
 
         <div className="tasks-toolbar">
           <button
-            className={`filter-btn ${vm.hideCompleted ? "active" : ""}`}
-            onClick={vm.toggleHideCompleted}
+            className={`filter-btn ${presenter.hideCompleted ? "active" : ""}`}
+            onClick={presenter.toggleHideCompleted}
             title={
-              vm.hideCompleted
+              presenter.hideCompleted
                 ? "Mostrar todas as tarefas"
                 : "Ocultar tarefas concluídas"
             }
@@ -68,24 +68,24 @@ export const ToDoPage: React.FC = () => {
         </div>
 
         <div className="tasks-list">
-          {vm.tasks.map((task, index) => (
+          {presenter.tasks.map((task, index) => (
             <ToDoCard
               key={task.id}
               index={index}
               task={task}
-              onDelete={() => vm.handleRemoveTask(task.id)}
-              onToggle={() => vm.handleToggleTask(task.id)}
-              onUpdate={vm.handleUpdateTask}
+              onDelete={() => presenter.removeTask(task.id)}
+              onToggle={() => presenter.toggleTask(task.id)}
+              onUpdate={presenter.updateTask}
               // MUDANÇA: Drag habilitado sempre, pois agora usa IDs
-              onDragStart={vm.handleDragStart}
-              onDragEnter={vm.handleDragEnter}
-              onDragEnd={vm.handleDragEnd}
+              onDragStart={presenter.onDragStart}
+              onDragEnter={presenter.onDragEnter}
+              onDragEnd={presenter.onDragEnd}
             />
           ))}
 
-          {vm.tasks.length === 0 && (
+          {presenter.tasks.length === 0 && (
             <p className="empty-msg">
-              {vm.hideCompleted
+              {presenter.hideCompleted
                 ? "Nenhuma tarefa pendente."
                 : "Nenhuma tarefa por enquanto."}
             </p>
